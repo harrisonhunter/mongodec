@@ -29,7 +29,8 @@ class MongoConfig(object):
 
     """
     def __init__(self, user=None, password=None, host=None, port=None,
-                 database=None, replica_set=None, environ_var=None):
+                 database=None, replica_set=None, environ_var=None,
+                 read_preference=None):
         """This class is just a wrapper for the above parameters"""
         self.user = user
         self.password = password
@@ -37,6 +38,7 @@ class MongoConfig(object):
         self.port = port
         self.database = database
         self.replica_set = replica_set
+        self.read_preference = read_preference
 
         # OR PASS AN ENV VAR
         self.environ_var = environ_var
@@ -53,13 +55,13 @@ class MongoConfig(object):
                            'database': self.database,
                            'replica_set': self.replica_set}
 
-
         user = config_dict.get('user')
         password = config_dict.get('password')
         host = config_dict.get('host')
         port = config_dict.get('port') or ''
         database = config_dict.get('database')
         replica_set = config_dict.get('replica_set') or ''
+        read_preference = self.read_preference or 'primary'
 
         if port != '':
             port = ':%s' % port
@@ -70,7 +72,7 @@ class MongoConfig(object):
         else:
             db_uri = 'mongodb://%s/%s%s' % (host, port, database)
 
-        return MongoClient(db_uri)
+        return MongoClient(db_uri, readPreference=read_preference)
 
     def db(self):
         """Returns a pymongo Database instance"""
